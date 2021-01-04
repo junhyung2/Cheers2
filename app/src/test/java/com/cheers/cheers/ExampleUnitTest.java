@@ -1,4 +1,4 @@
-package com.example.cheers;
+package com.cheers.cheers;
 
 import org.junit.Test;
 
