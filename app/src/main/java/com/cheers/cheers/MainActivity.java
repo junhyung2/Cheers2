@@ -1,9 +1,14 @@
 package com.cheers.cheers;
 
+import android.Manifest;
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -13,6 +18,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,6 +33,7 @@ import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
 import com.google.android.gms.ads.AdListener;
@@ -36,18 +43,29 @@ import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.gun0912.tedpermission.PermissionListener;
+import com.gun0912.tedpermission.TedPermission;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
     private int i=0;        //잔 카운팅
     private TextView CupText;   //잔 카운팅 텍스트뷰
 
-    private ConstraintLayout constraintlayout;
-    private static final int REQUEST_CODE = 0;
+    private LinearLayout linearLayout;  //캡쳐화면뜰 레이아웃
+    private LinearLayout LinearView;    //전체화면
+
+    private static final int REQUEST_CODE = 0;      //갤러리
+    private static final int PICK_FROM_CAMERA = 1;  //카메라
+
+    private File dir;
 
     //잔맥주, 소주, 칵테일, 병맥주
     private int leftimage[] = {R.drawable.left, R.drawable.sojuleft, R.drawable.cocktailleft, R.drawable.bottleleft};
@@ -73,7 +91,6 @@ public class MainActivity extends AppCompatActivity {
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
 
-
         //SoundManager.java를 불러옴
         SoundManager.getInstance();
         SoundManager.initSound(this);
@@ -87,37 +104,49 @@ public class MainActivity extends AppCompatActivity {
         //이미지 선언
         ImageView RightImageView =findViewById(R.id.RightImageView);
         ImageView LeftImageView =findViewById(R.id.LeftImageView);
-        //레이아웃
-        constraintlayout = findViewById(R.id.constraintlayout);
-
+        //백그라운드 레이아웃
+        linearLayout = findViewById(R.id.linearLayout);
+        //전체 레이아웃 화면
+        LinearView = findViewById(R.id.LinearView);
         //텍스트 선언
         CupText = findViewById(R.id.CupText);
 
+        //이미지 저장 경로
+        //이미지경로, 피일
+        String address = Environment.getExternalStorageDirectory() + "/android/data" + "/.jpeg";
+        dir = new File(address);
+        //카메라 권한 체크
+        TedPermission.with(getApplicationContext())
+                .setPermissionListener(permissionListener)
+                .setRationaleMessage("Camera permission is required.")
+                .setDeniedMessage("You have denied camera permissions.")
+                .setPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
+                .check();
+
+
         //Click버튼
         ImageView ClickView =findViewById(R.id.ClickView);
-
         ClickView.startAnimation(animTransClick);
 
         //Cheers! 버튼
         findViewById(R.id.SoundButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 ClickView.setAlpha(0);
                 //애니메이션
                 LeftImageView.startAnimation(animTransLeft);
                 RightImageView.startAnimation(animTransRight);
 
-                if (index==0){      //맥주
-                    //앞 숫자는 노래목록, 뒤의 숫자는 속도
-                    SoundManager.playSound(1, 1);
-                } else if (index==1){       //소주
-                    SoundManager.playSound(3, 1);
-                }else if (index==2){        //칵테일
-                    SoundManager.playSound(3, 1);
-                }else {         //병맥주
-                    SoundManager.playSound(2, 1);
-                }
+            if (index==0){      //맥주
+                //앞 숫자는 노래목록, 뒤의 숫자는 속도
+                SoundManager.playSound(1, 1);
+            } else if (index==1){       //소주
+                SoundManager.playSound(3, 1);
+            }else if (index==2){        //칵테일
+                SoundManager.playSound(3, 1);
+            }else {         //병맥주
+                SoundManager.playSound(2, 1);
+            }
 
                 //잔 카운트뷰 애니메이션
                 ObjectAnimator animator = ObjectAnimator.ofFloat(CupText, "rotationX", 0, -360);   //CupText가 y축 위로 360도 회전
@@ -140,15 +169,14 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //퍼미션 체크
-        //checkPermission();
+        checkPermission();
         //인스타 share버튼
         LinearLayout InstaLinear =findViewById(R.id.InstaLinear);
         InstaLinear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                share();        //인스타share
-
+                //인스타share
+                share();
             }
         });
 
@@ -170,11 +198,10 @@ public class MainActivity extends AppCompatActivity {
                     RightImageView.setImageResource(rightimage[0]);
                     index++;
                 }
-
             }
         });
 
-        //갤러리추가
+        //백그러운드 메뉴
         findViewById(R.id.menu).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -184,19 +211,19 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public boolean onMenuItemClick(MenuItem menuItem) {
                         if (menuItem.getItemId() == R.id.action_menu1){
+                            //사진촬영
+                            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                            startActivityForResult(intent, PICK_FROM_CAMERA);
+                        }else if (menuItem.getItemId() == R.id.action_menu2){
+                            //갤러리
                             Intent intent = new Intent();
                             intent.setType("image/*");
                             intent.setAction(Intent.ACTION_GET_CONTENT);
                             startActivityForResult(intent, REQUEST_CODE);
-
-                            Toast.makeText(MainActivity.this, "메뉴 1 클릭", Toast.LENGTH_SHORT).show();
-                        }else if (menuItem.getItemId() == R.id.action_menu2){
-                            Toast.makeText(MainActivity.this, "메뉴 2 클릭", Toast.LENGTH_SHORT).show();
                         }else {
-                            constraintlayout.setBackgroundColor(Color.RED);
-                            Toast.makeText(MainActivity.this, "메뉴 3 클릭", Toast.LENGTH_SHORT).show();
+                            //하얀색으로
+                            LinearView.setBackgroundColor(Color.WHITE);
                         }
-
                         return false;
                     }
                 });
@@ -204,19 +231,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         //데이터 불러오기
         SharedPreferences preferences = getSharedPreferences("file", Context.MODE_PRIVATE);
         String CupTextView = preferences.getString("CupTextView", "");
         i = preferences.getInt("CheersCount", 0);
         CupText.setText(CupTextView);
 
-
         //-- admob 전면광고 setting
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
             @Override
             public void onInitializationComplete(InitializationStatus initializationStatus) {
-
             }
         });
         mInterstitialAd = new InterstitialAd(this);
@@ -227,27 +251,22 @@ public class MainActivity extends AppCompatActivity {
             public void onAdLoaded() {
                 Log.d("TAGHSS", "onAdLoaded");
             }
-
             @Override
             public void onAdFailedToLoad(int errorCode) {
                 Log.d("TAGHSS", "onAdFailedToLoad");
             }
-
             @Override
             public void onAdOpened() {
                 Log.d("TAGHSS", "onAdOpened");
             }
-
             @Override
             public void onAdClicked() {
                 Log.d("TAGHSS", "onAdClicked");
             }
-
             @Override
             public void onAdLeftApplication() {
                 Log.d("TAGHSS", "onAdLeftApplication");
             }
-
             @Override
             public void onAdClosed() {
                 Log.d("TAGHSS", "onAdClosed");
@@ -257,12 +276,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         mInterstitialAd.loadAd(new AdRequest.Builder().build());
-
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        //갤러리
         if (requestCode == REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 try {
@@ -272,37 +292,46 @@ public class MainActivity extends AppCompatActivity {
                     Drawable DrawableImg = new BitmapDrawable(getResources(), img);    //bitmap을 drawable로 형변환
                     in.close();
 
-                    constraintlayout.setBackground(DrawableImg);
+                    //투명도0~255
+                    DrawableImg.setAlpha(204);
+                    LinearView.setBackground(DrawableImg);
                 } catch (Exception e) {
 
                 }
             } else if (resultCode == RESULT_CANCELED) {
-                Toast.makeText(this, "사진 선택 취소", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Cancel", Toast.LENGTH_LONG).show();
+            }
+        } else if (requestCode == PICK_FROM_CAMERA && resultCode == Activity.RESULT_OK &&data.hasExtra("data")){
+            //카메라
+            Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+            Drawable CaptureImg = new BitmapDrawable(getResources(), bitmap);    //bitmap을 drawable로 형변환
+            if (bitmap != null) {
+                //투명도0~255
+                CaptureImg.setAlpha(204);
+                LinearView.setBackground(CaptureImg);
             }
         }
+
     }
+
 
     //인스타 share
     private void share(){
-
-        //현재 화면 전체 스크린샷
-        View container = getWindow().getDecorView();
-        container.buildDrawingCache();
-        Bitmap captureView = container.getDrawingCache();
-
-        //이미지 저장
-        String address = "/Android/data"+"/captuer.jpeg";
-        File file = new File(Environment.getExternalStorageDirectory(), address);
+        //전체화면 스크린샷
+        //View container = getWindow().getDecorView();
+        //linearLayout 스크린샷
+        linearLayout.buildDrawingCache();
+        Bitmap captureView = linearLayout.getDrawingCache();
 
         FileOutputStream fos;
         try {
-            fos = new FileOutputStream(address);
+            fos = new FileOutputStream(dir);
             captureView.compress(Bitmap.CompressFormat.JPEG, 100, fos);
         }catch (FileNotFoundException e){
             e.printStackTrace();
         }
 
-        Uri uri = FileProvider.getUriForFile(getApplicationContext(),"com.example.cheers.fileprovider", file);
+        Uri uri = FileProvider.getUriForFile(getApplicationContext(),"com.cheers.cheers.fileprovider", dir);
 
         Intent intent = new Intent("com.instagram.share.ADD_TO_STORY");
         intent.setDataAndType(uri, "image/*");
@@ -312,17 +341,26 @@ public class MainActivity extends AppCompatActivity {
         startActivity(Intent.createChooser(intent, "Share"));
     }
 
-/*
-    //퍼미션 체크
+
+    //갤러리 퍼미션 체크
     @RequiresApi(api = Build.VERSION_CODES.M)
     public void checkPermission(){
         if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},1);
         }
     }
+    //카메라 퍼미션
+    PermissionListener permissionListener = new PermissionListener() {
+        @Override
+        public void onPermissionGranted() {
+            Toast.makeText(getApplicationContext(), "Permission granted", Toast.LENGTH_SHORT).show();
+        }
 
- */
-
+        @Override
+        public void onPermissionDenied(ArrayList<String> deniedPermissions) {
+            Toast.makeText(getApplicationContext(), "Permission denied", Toast.LENGTH_SHORT).show();
+        }
+    };
 
 
     //ture(afterbtnw버튼)일 경우 i와 cnt 증가, false(beforebtnb버튼)일 경우 i와 cnt 감소
