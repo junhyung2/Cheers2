@@ -1,4 +1,4 @@
-# Cheers2
+# Cheers!
 
 # 앱 설명 Application Description
 여러 일 때문에 답답한 현실, 집에서 혼술하는 순간은 외롭기도 하죠.
