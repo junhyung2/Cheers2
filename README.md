@@ -19,7 +19,7 @@ Cheers! Let's make our time alone more energetic!"
 2. Java는 건배 소리를 관리하는 클래스, 메인액티비티 클래스, 스플래시 클래스가 있습니다.
 3. strings - COVID-19에 친구들과 원격 모임을 가지면서 "건배소리가 났으면 좋겠다."라는 생각에서 시작한 개발이기 때문에 25개국으로 번역을 했다.
 
-<img src="https://user-images.githubusercontent.com/72978589/105719266-6f629780-5f65-11eb-95f1-e289a5805b8c.png" width="40%">
-<img src="https://user-images.githubusercontent.com/72978589/105719258-6d003d80-5f65-11eb-91fa-95a35bcda1d6.png" width="40%">
+<img src="https://user-images.githubusercontent.com/72978589/105719266-6f629780-5f65-11eb-95f1-e289a5805b8c.png" width="40%"> <img src="https://user-images.githubusercontent.com/72978589/105719258-6d003d80-5f65-11eb-91fa-95a35bcda1d6.png" width="40%">
+
 <img src="https://user-images.githubusercontent.com/72978589/105719629-d97b3c80-5f65-11eb-9393-85a7083366b2.png" width="40%">
 <img src="https://user-images.githubusercontent.com/72978589/105719623-d84a0f80-5f65-11eb-880f-4856deea5fb9.png" width="40%">
