@@ -23,3 +23,10 @@ Cheers! Let's make our time alone more energetic!"
 ![KakaoTalk_20210105_222102512_03](https://user-images.githubusercontent.com/72978589/105719258-6d003d80-5f65-11eb-91fa-95a35bcda1d6.png)
 ![english](https://user-images.githubusercontent.com/72978589/105719629-d97b3c80-5f65-11eb-9393-85a7083366b2.png)
 ![en_screen](https://user-images.githubusercontent.com/72978589/105719623-d84a0f80-5f65-11eb-880f-4856deea5fb9.png)
+
+// 태그 형식
+<img src="https://user-images.githubusercontent.com/72978589/105719266-6f629780-5f65-11eb-95f1-e289a5805b8c.png"  width="700" height="370">
+<img src="/uploads/1848994ad25765da30fa8ef3684c67bc/캡처.PNG"  width="700" height="370">
+<img src="/uploads/1848994ad25765da30fa8ef3684c67bc/캡처.PNG"  width="700" height="370">
+<img src="/uploads/1848994ad25765da30fa8ef3684c67bc/캡처.PNG"  width="700" height="370">
+
