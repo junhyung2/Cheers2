@@ -11,7 +11,10 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Outline;
+import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -30,6 +33,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -57,20 +61,28 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
     private int i=0;        //잔 카운팅
-    private TextView CupText;   //잔 카운팅 텍스트뷰
-
-    private LinearLayout linearLayout;  //캡쳐화면뜰 레이아웃
+    private TextView CupText,textView,text;   //잔 카운팅 텍스트뷰
     private LinearLayout LinearView;    //전체화면
+    private ImageView RightImageView, LeftImageView;
+    ConstraintLayout constrain;
+
+    private LinearLayout ResetLinear;   //reset버튼
+    private LinearLayout InstaLinear;   //인스타 share버튼
+    private LinearLayout changeLinear;  //change버튼
+    private ImageView menu;             //백그라운드 이미지 버튼
+    AdView mAdView;
 
     private static final int REQUEST_CODE = 0;      //갤러리
     private static final int PICK_FROM_CAMERA = 1;  //카메라
 
     private File dir;
 
+    private ImageView imageView;
+
     //잔맥주, 소주, 칵테일, 병맥주
     private int leftimage[] = {R.drawable.left, R.drawable.sojuleft, R.drawable.cocktailleft, R.drawable.bottleleft};
     private int rightimage[] = {R.drawable.right, R.drawable.sojuright, R.drawable.cocktailright, R.drawable.bottleright};
-    private int index = 1;    //이미지 교체 인덱스
+    private int index = 0;    //이미지 교체 인덱스
 
     private InterstitialAd mInterstitialAd;     //전면광고/
 
@@ -87,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        AdView mAdView = findViewById(R.id.adView);
+        mAdView = findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
 
@@ -102,14 +114,16 @@ public class MainActivity extends AppCompatActivity {
         final Animation animTransClick = AnimationUtils.loadAnimation(this, R.anim.anim_scale_click);
         final Animation animTransFadein = AnimationUtils.loadAnimation(this, R.anim.anim_fadein);
         //이미지 선언
-        ImageView RightImageView =findViewById(R.id.RightImageView);
-        ImageView LeftImageView =findViewById(R.id.LeftImageView);
-        //백그라운드 레이아웃
-        linearLayout = findViewById(R.id.linearLayout);
-        //전체 레이아웃 화면
+        RightImageView =findViewById(R.id.RightImageView);
+        LeftImageView =findViewById(R.id.LeftImageView);
+        imageView = findViewById(R.id.ImageView);
+        constrain=findViewById(R.id.constrain);
+        //배경 레이아웃 화면
         LinearView = findViewById(R.id.LinearView);
         //텍스트 선언
         CupText = findViewById(R.id.CupText);
+        textView = findViewById(R.id.textView);
+        text=findViewById(R.id.text);
 
         //이미지 저장 경로
         //이미지경로, 피일
@@ -137,13 +151,13 @@ public class MainActivity extends AppCompatActivity {
                 LeftImageView.startAnimation(animTransLeft);
                 RightImageView.startAnimation(animTransRight);
 
-            if (index==0){      //맥주
+            if (index==0){      //잔맥주
                 //앞 숫자는 노래목록, 뒤의 숫자는 속도
                 SoundManager.playSound(1, 1);
             } else if (index==1){       //소주
-                SoundManager.playSound(3, 1);
+                SoundManager.playSound(1, 1);
             }else if (index==2){        //칵테일
-                SoundManager.playSound(3, 1);
+                SoundManager.playSound(2, 1);
             }else {         //병맥주
                 SoundManager.playSound(2, 1);
             }
@@ -158,7 +172,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //reset버튼
-        findViewById(R.id.ResetLinear).setOnClickListener(new View.OnClickListener() {
+        ResetLinear = findViewById(R.id.ResetLinear);
+        ResetLinear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ObjectAnimator animator = ObjectAnimator.ofFloat(CupText, "rotationX", 0, 360);   //CupText가 x축 위로 360도 회전
@@ -171,38 +186,46 @@ public class MainActivity extends AppCompatActivity {
         //퍼미션 체크
         checkPermission();
         //인스타 share버튼
-        LinearLayout InstaLinear =findViewById(R.id.InstaLinear);
+        InstaLinear =findViewById(R.id.InstaLinear);
         InstaLinear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //인스타share
                 share();
+                //버튼 다시 보이기
+                ResetLinear.setVisibility(View.VISIBLE);
+                InstaLinear.setVisibility(View.VISIBLE);
+                changeLinear.setVisibility(View.VISIBLE);
+                menu.setVisibility(View.VISIBLE);
             }
         });
 
         //체인지 버튼
-        findViewById(R.id.changeLinear).setOnClickListener(new View.OnClickListener() {
+        changeLinear = findViewById(R.id.changeLinear);
+        changeLinear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //잔 바뀔 때 애니메이션
                 LeftImageView.startAnimation(animTransFadein);
                 RightImageView.startAnimation(animTransFadein);
 
+                ++index;
                 if (index < leftimage.length) {
                     LeftImageView.setImageResource(leftimage[index]);
                     RightImageView.setImageResource(rightimage[index]);
-                    ++index;
                 }else {
                     index =0;
                     LeftImageView.setImageResource(leftimage[0]);
                     RightImageView.setImageResource(rightimage[0]);
-                    index++;
                 }
+
+
             }
         });
 
-        //백그러운드 메뉴
-        findViewById(R.id.menu).setOnClickListener(new View.OnClickListener() {
+        //백그러운드 이미지 메뉴
+        menu = findViewById(R.id.menu);
+        menu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final PopupMenu popupMenu = new PopupMenu(getApplicationContext(),v);
@@ -222,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
                             startActivityForResult(intent, REQUEST_CODE);
                         }else {
                             //하얀색으로
-                            LinearView.setBackgroundColor(Color.WHITE);
+                            imageView.setBackgroundColor(Color.WHITE);
                         }
                         return false;
                     }
@@ -278,7 +301,7 @@ public class MainActivity extends AppCompatActivity {
         mInterstitialAd.loadAd(new AdRequest.Builder().build());
     }
 
-
+    //갤러리 또는 카메라 결과
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -289,12 +312,18 @@ public class MainActivity extends AppCompatActivity {
                     InputStream in = getContentResolver().openInputStream(data.getData());
 
                     Bitmap img = BitmapFactory.decodeStream(in);
-                    Drawable DrawableImg = new BitmapDrawable(getResources(), img);    //bitmap을 drawable로 형변환
-                    in.close();
 
+                    //Drawable DrawableImg = new BitmapDrawable(getResources(), img);    //bitmap을 drawable로 형변환
                     //투명도0~255
-                    DrawableImg.setAlpha(204);
-                    LinearView.setBackground(DrawableImg);
+                    //DrawableImg.setAlpha(204);
+
+                    Canvas canvas = new Canvas();
+                    Paint alphaPaint = new Paint();
+                    alphaPaint.setAlpha(204);
+                    canvas.drawBitmap(img, 0, 0, alphaPaint);
+
+                    imageView.setImageBitmap(img);
+                    in.close();
                 } catch (Exception e) {
 
                 }
@@ -308,25 +337,39 @@ public class MainActivity extends AppCompatActivity {
             if (bitmap != null) {
                 //투명도0~255
                 CaptureImg.setAlpha(204);
-                LinearView.setBackground(CaptureImg);
+                imageView.setBackground(CaptureImg);
             }
         }
 
     }
 
-
     //인스타 share
     private void share(){
-        //전체화면 스크린샷
-        //View container = getWindow().getDecorView();
-        //linearLayout 스크린샷
-        linearLayout.buildDrawingCache();
-        Bitmap captureView = linearLayout.getDrawingCache();
+        //버튼 숨기기
+        ResetLinear.setVisibility(View.INVISIBLE);
+        InstaLinear.setVisibility(View.INVISIBLE);
+        changeLinear.setVisibility(View.INVISIBLE);
+        menu.setVisibility(View.INVISIBLE);
+
+        // 스크린샷
+        constrain.buildDrawingCache();
+        constrain.setAlpah(204);
+        Bitmap captureView = constrain.getDrawingCache();
+
+        /*
+        Canvas canvas = new Canvas();
+        Paint alphaPaint = new Paint();
+        alphaPaint.setAlpha(204);
+        canvas.drawBitmap(captureView, 0, 0, alphaPaint);
+         */
+
+        //Drawable InstaImg = new BitmapDrawable(getResources(), captureView);    //bitmap을 drawable로 형변환
 
         FileOutputStream fos;
         try {
+
             fos = new FileOutputStream(dir);
-            captureView.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            captureView.compress(Bitmap.CompressFormat.PNG, 100, fos);
         }catch (FileNotFoundException e){
             e.printStackTrace();
         }
@@ -340,7 +383,6 @@ public class MainActivity extends AppCompatActivity {
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         startActivity(Intent.createChooser(intent, "Share"));
     }
-
 
     //갤러리 퍼미션 체크
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -362,7 +404,6 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-
     //ture(afterbtnw버튼)일 경우 i와 cnt 증가, false(beforebtnb버튼)일 경우 i와 cnt 감소
     private void onButtonClick(Boolean isPlus) {
         if (isPlus) {
@@ -373,7 +414,6 @@ public class MainActivity extends AppCompatActivity {
             CupText.setText(" "+i+ " ");       //settext는 text를 바꾸는 함수
         }
     }
-
 
     @Override
     public void onStop() {

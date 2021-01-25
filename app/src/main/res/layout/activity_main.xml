@@ -5,197 +5,230 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/cardview_light_background"
+    android:background="#ffffff"
     tools:context=".MainActivity">
 
-<!--insert photo view-->
-    <LinearLayout
-        android:id="@+id/LinearView"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="vertical"
+        android:id="@+id/constrain"
         app:layout_constraintBottom_toTopOf="@+id/adView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/gradient_top">
-            <!--instagram share button-->
-            <LinearLayout
-                android:id="@+id/InstaLinear"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
-                android:layout_marginLeft="10dp"
-                android:orientation="horizontal">
+    <ImageView
+        android:id="@+id/ImageView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
 
-                <ImageView
-                    android:id="@+id/InstaImage"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/instagram" />
-
-                <TextView
-                    android:id="@+id/InstaText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="3dp"
-                    android:text="share"
-                    android:textColor="#215EFE"
-                    android:textStyle="bold" />
-            </LinearLayout>
-            <!--reset button-->
-            <LinearLayout
-                android:id="@+id/ResetLinear"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginLeft="20dp"
-                android:layout_toEndOf="@+id/InstaLinear"
-                android:layout_toRightOf="@+id/InstaLinear"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_baseline_refresh_24" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="reset"
-                    android:textColor="#215EFE"
-                    android:textStyle="bold" />
-            </LinearLayout>
-            <!--change button-->
-            <LinearLayout
-                android:id="@+id/changeLinear"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
-                android:layout_marginRight="10dp"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/change" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="3dp"
-                    android:text="change"
-                    android:textColor="#FD8D6A"
-                    android:textStyle="bold" />
-            </LinearLayout>
-        </RelativeLayout>
-
-        <!--instargram share view-->
-
+        <!--insert photo view-->
         <LinearLayout
-            android:id="@+id/linearLayout"
+            android:id="@+id/LinearView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:orientation="vertical">
-            <!--cheers counting-->
-            <LinearLayout
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="right"
-                android:orientation="horizontal">
-                <TextView
-                    android:id="@+id/textView"
+                android:layout_height="30dp"
+                android:background="@drawable/gradient_top"
+                android:gravity="center">
+                <!--instagram share button-->
+                <LinearLayout
+                    android:id="@+id/InstaLinear"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="right"
-                    android:text="@string/total"
-                    android:textColor="@color/black"
-                    android:textSize="20sp" />
-                <TextView
-                    android:id="@+id/CupText"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_marginLeft="10dp"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/InstaImage"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/instagram" />
+
+                    <TextView
+                        android:id="@+id/InstaText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="3dp"
+                        android:text="share"
+                        android:textColor="#215EFE"
+                        android:textStyle="bold" />
+                </LinearLayout>
+                <!--reset button-->
+                <LinearLayout
+                    android:id="@+id/ResetLinear"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="right"
-                    android:text="0"
-                    android:textColor="@color/black"
-                    android:textSize="50sp" />
-                <TextView
-                    android:id="@+id/text"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_toEndOf="@+id/InstaLinear"
+                    android:layout_toRightOf="@+id/InstaLinear"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_baseline_refresh_24" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="reset"
+                        android:textColor="#215EFE"
+                        android:textStyle="bold" />
+                </LinearLayout>
+                <!--change button-->
+                <LinearLayout
+                    android:id="@+id/changeLinear"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="10dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
                     android:layout_marginRight="10dp"
-                    android:gravity="right"
-                    android:text="@string/cups"
-                    android:textColor="@color/black"
-                    android:textSize="20sp" />
-            </LinearLayout>
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/change" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="3dp"
+                        android:text="change"
+                        android:textColor="#FD8D6A"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </RelativeLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal">
-                <ImageView
-                    android:id="@+id/LeftImageView"
-                    android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <!--cheers counting-->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:paddingLeft="40dp"
-                    android:src="@drawable/left" />
-                <ImageView
-                    android:id="@+id/RightImageView"
-                    android:layout_width="0dp"
+                    android:gravity="right"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/textView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="right"
+                        android:shadowColor="@color/cardview_light_background"
+                        android:shadowRadius="15"
+                        android:text="@string/total"
+                        android:textColor="@color/black"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/CupText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="right"
+                        android:shadowColor="@color/cardview_light_background"
+                        android:shadowRadius="15"
+                        android:text="0"
+                        android:textColor="@color/black"
+                        android:textSize="50sp" />
+
+                    <TextView
+                        android:id="@+id/text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="10dp"
+                        android:layout_marginRight="10dp"
+                        android:gravity="right"
+                        android:shadowColor="@color/cardview_light_background"
+                        android:shadowRadius="15"
+                        android:text="@string/cups"
+                        android:textColor="@color/black"
+                        android:textSize="20sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:paddingRight="40dp"
-                    android:src="@drawable/right" />
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/LeftImageView"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:paddingLeft="40dp"
+                        android:src="@drawable/left" />
+
+                    <ImageView
+                        android:id="@+id/RightImageView"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:paddingRight="40dp"
+                        android:src="@drawable/right" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/SoundButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="55dp"
+                    android:layout_gravity="center"
+                    android:shadowColor="@color/cardview_light_background"
+                    android:shadowRadius="15"
+                    android:text="@string/app_name"
+                    android:textColor="@color/black"
+                    android:textSize="50sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/ClickView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="20dp"
+                    app:srcCompat="@drawable/click" />
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/SoundButton"
-                android:layout_width="wrap_content"
-                android:layout_height="55dp"
-                android:layout_gravity="center"
-                android:shadowColor="@color/cardview_light_background"
-                android:shadowRadius="15"
-                android:text="@string/app_name"
-                android:textColor="@color/black"
-                android:textSize="50sp"
-                android:textStyle="bold" />
-            <ImageView
-                android:id="@+id/ClickView"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:layout_marginBottom="20dp"
-                app:srcCompat="@drawable/click" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:background="@drawable/gradient_bottom"
+                android:gravity="left|center">
+
+                <ImageView
+                    android:id="@+id/menu"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:src="@drawable/ic_baseline_photo_camera_24" />
+            </RelativeLayout>
         </LinearLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/gradient_bottom">
-            <ImageView
-                android:id="@+id/menu"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_marginStart="10dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginBottom="10dp"
-                android:src="@drawable/ic_baseline_photo_camera_24" />
-        </RelativeLayout>
-
-    </LinearLayout>
-
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.gms.ads.AdView
         android:id="@+id/adView"

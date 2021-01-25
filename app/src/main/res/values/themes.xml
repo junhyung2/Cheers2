@@ -11,8 +11,6 @@
         <item name="colorOnSecondary">@color/black</item>
         <!-- spalsh가 바로 켜질 수 있도록 -->
         <item name="android:windowBackground">@drawable/splash_background</item>
-
-
     </style>
 
 </resources>
