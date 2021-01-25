@@ -13,6 +13,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Outline;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
@@ -78,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
     private File dir;
 
     private ImageView imageView;
+    static Bitmap imageSelect;
 
     //잔맥주, 소주, 칵테일, 병맥주
     private int leftimage[] = {R.drawable.left, R.drawable.sojuleft, R.drawable.cocktailleft, R.drawable.bottleleft};
@@ -245,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
                             startActivityForResult(intent, REQUEST_CODE);
                         }else {
                             //하얀색으로
-                            imageView.setBackgroundColor(Color.WHITE);
+                            imageView.setImageResource(android.R.color.transparent);
                         }
                         return false;
                     }
@@ -302,6 +305,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //갤러리 또는 카메라 결과
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -312,18 +316,15 @@ public class MainActivity extends AppCompatActivity {
                     InputStream in = getContentResolver().openInputStream(data.getData());
 
                     Bitmap img = BitmapFactory.decodeStream(in);
+                    imageSelect = img;
 
                     //Drawable DrawableImg = new BitmapDrawable(getResources(), img);    //bitmap을 drawable로 형변환
-                    //투명도0~255
-                    //DrawableImg.setAlpha(204);
-
-                    Canvas canvas = new Canvas();
-                    Paint alphaPaint = new Paint();
-                    alphaPaint.setAlpha(204);
-                    canvas.drawBitmap(img, 0, 0, alphaPaint);
+                    //Bitmap newBitmap = drawableToBitmap(DrawableImg);
 
                     imageView.setImageBitmap(img);
+                    imageView.setColorFilter((brightIt(30)));
                     in.close();
+
                 } catch (Exception e) {
 
                 }
@@ -333,17 +334,18 @@ public class MainActivity extends AppCompatActivity {
         } else if (requestCode == PICK_FROM_CAMERA && resultCode == Activity.RESULT_OK &&data.hasExtra("data")){
             //카메라
             Bitmap bitmap = (Bitmap) data.getExtras().get("data");
-            Drawable CaptureImg = new BitmapDrawable(getResources(), bitmap);    //bitmap을 drawable로 형변환
+            //Drawable CaptureImg = new BitmapDrawable(getResources(), bitmap);    //bitmap을 drawable로 형변환
             if (bitmap != null) {
-                //투명도0~255
-                CaptureImg.setAlpha(204);
-                imageView.setBackground(CaptureImg);
+                //Bitmap CaptureBitmap = drawableToBitmap(CaptureImg);
+                imageView.setImageBitmap(bitmap);
+                imageView.setColorFilter((brightIt(30)));
             }
         }
 
     }
 
     //인스타 share
+    @SuppressLint("Range")
     private void share(){
         //버튼 숨기기
         ResetLinear.setVisibility(View.INVISIBLE);
@@ -351,19 +353,16 @@ public class MainActivity extends AppCompatActivity {
         changeLinear.setVisibility(View.INVISIBLE);
         menu.setVisibility(View.INVISIBLE);
 
+        if(imageSelect == null) {
+            imageView.setImageResource(android.R.color.transparent);
+        }
+            //Drawable DrawableImg = new BitmapDrawable(getResources(), imageSelect);    //bitmap을 drawable로 형변환
+            //Bitmap newBitmap = drawableToBitmap(DrawableImg);
+            //imageView.setImageBitmap(SetBrightness(newBitmap,30));
+
         // 스크린샷
         constrain.buildDrawingCache();
-        constrain.setAlpah(204);
         Bitmap captureView = constrain.getDrawingCache();
-
-        /*
-        Canvas canvas = new Canvas();
-        Paint alphaPaint = new Paint();
-        alphaPaint.setAlpha(204);
-        canvas.drawBitmap(captureView, 0, 0, alphaPaint);
-         */
-
-        //Drawable InstaImg = new BitmapDrawable(getResources(), captureView);    //bitmap을 drawable로 형변환
 
         FileOutputStream fos;
         try {
@@ -376,9 +375,10 @@ public class MainActivity extends AppCompatActivity {
 
         Uri uri = FileProvider.getUriForFile(getApplicationContext(),"com.cheers.cheers.fileprovider", dir);
 
+        //인스타 sdk를 이용한 인스타 패키지 주소로 이동
         Intent intent = new Intent("com.instagram.share.ADD_TO_STORY");
-        intent.setDataAndType(uri, "image/*");
 
+        intent.setDataAndType(uri, "image/*");
         grantUriPermission("com.instagram.android",uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         startActivity(Intent.createChooser(intent, "Share"));
@@ -395,12 +395,12 @@ public class MainActivity extends AppCompatActivity {
     PermissionListener permissionListener = new PermissionListener() {
         @Override
         public void onPermissionGranted() {
-            Toast.makeText(getApplicationContext(), "Permission granted", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(), "Permission granted", Toast.LENGTH_SHORT).show();
         }
 
         @Override
         public void onPermissionDenied(ArrayList<String> deniedPermissions) {
-            Toast.makeText(getApplicationContext(), "Permission denied", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(), "Permission denied", Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -437,13 +437,29 @@ public class MainActivity extends AppCompatActivity {
     /* backkey 누르면 광고 뜨게 처리 */
     @Override
     public void onBackPressed() {
-
         if (mInterstitialAd.isLoaded()){
             mInterstitialAd.show();
         } else {
             Log.d("TAGHSS", "The interstitial wasn't loaded yet.");
         }
+    }
 
+    //사진 밝기 조절
+    public static ColorMatrixColorFilter brightIt(int fb) {
+        ColorMatrix cmB = new ColorMatrix();
+        cmB.set(new float[] {
+                1, 0, 0, 0, fb,
+                0, 1, 0, 0, fb,
+                0, 0, 1, 0, fb,
+                0, 0, 0, 1, 0   });
+
+        ColorMatrix colorMatrix = new ColorMatrix();
+        colorMatrix.set(cmB);
+        //Canvas c = new Canvas(b2);
+        //Paint paint = new Paint();
+        ColorMatrixColorFilter f = new ColorMatrixColorFilter(colorMatrix);
+        //paint.setColorFilter(f);
+        return f;
     }
 
 }
